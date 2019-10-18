@@ -7,20 +7,23 @@ const app = express()
 const port = 3000
 let count = 0
 const validationMiddleware = (req, res, next) => {
-    return
+    if (!req.body.text||req.body.text===''){
+        res.status(400).end()
+    }
+    if (count > 4) {
+        res.status(429).end()
+    }
+    count = count + 1
+    next()
 }
 app.use(corsMiddleware)
 app.use(jsonParser)
+app.use(validationMiddleware)
 app.post('/messages', 
     (req, res, next) => {
-        if (!req.body.text||req.body.text===''){
-            res.status(400).end()
-        }
-        if (count > 4) {
-            res.status(429).end()
-        }
+
         console.log(req.body.text)
-        count = count + 1
+        
         res.json({
             message: 'Message received loud and clear'
         })
