@@ -9,6 +9,9 @@ app.use(corsMiddleware)
 app.use(jsonParser)
 app.post('/messages', 
     (req, res, next) => {
+        if (!req.body.text||req.body.text===''){
+            res.status(400).end()
+        }
         console.log(req.body.text)
         res.json({
             message: 'Message received loud and clear'
