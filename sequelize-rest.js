@@ -7,29 +7,42 @@ const Movie = sequelize.define('movie', {
   yearOfRelease: Sequelize.INTEGER,
   synopsis:Sequelize.STRING
 });
-sequelize.sync()
+sequelize.sync({force:true})
 .then(
   () => {
-    Movie.create({
+    console.log('Database schema has been updated.')
+    const movie1 = Movie.create({
       title: 'Momento',
       yearOfRelease: 2000,
       synopsis:'A guy with short memory loss is tracking someone who killed his wife' 
     })
     
-    Movie.create({
+    const movie2 = Movie.create({
       title: 'Stalker',
       yearOfRelease: 1979,
       synopsis:'A guide with two people is visiting THE ROOM, a place where wishes can be granted' 
     })
     
-    Movie.create({
+    const movie3 = Movie.create({
       title: 'MidSommar',
       yearOfRelease: 2019,
       synopsis:'Group of people travel to attend a folk festival turns out to be cultist' 
     })  
+    return Promise.all([movie1,movie2,movie3])
   }
   )
+  .then(
+    () => console.log('3 movies initialized')
+  )
+  .catch(err => {
+    console.error('DataBase Initialization Failed')
+    process.exit(1)
+  })
   // creat express app
   const express = require('express')
   const app = express()
+  const port = process.env.PORT || 3000
+  // create new movie resource
+  
+  app.listen(port, ()=>console.log(`Listening on port ${port}`))
   
