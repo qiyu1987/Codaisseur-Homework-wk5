@@ -7,6 +7,7 @@ const Movie = sequelize.define('movie', {
   yearOfRelease: Sequelize.INTEGER,
   synopsis:Sequelize.STRING
 });
+// database update and seeding
 sequelize.sync({force:true})
 .then(
   () => {
@@ -35,14 +36,23 @@ sequelize.sync({force:true})
     () => console.log('3 movies initialized')
   )
   .catch(err => {
-    console.error('DataBase Initialization Failed')
+    console.error('DataBase Initialization Failed, shutting down...')
     process.exit(1)
   })
   // creat express app
   const express = require('express')
+  const bodyParser = require('body-parser')
   const app = express()
   const port = process.env.PORT || 3000
+  app.use(bodyParser.json())
   // create new movie resource
-  
+  app.post('/movies',
+    (req, res, next) => {
+      Movie.create(req.body)
+        .then(movie => res.json(movie))
+        .catch(next)
+    } 
+  )
+  // start server
   app.listen(port, ()=>console.log(`Listening on port ${port}`))
   
