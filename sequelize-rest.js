@@ -67,10 +67,52 @@ sequelize.sync({force:true})
   app.get('/movies/:id', 
     (req, res, next) => {
       Movie.findByPk(req.params.id)
-        .then(movie => res.json(movie))
+        .then(movie => {
+          if(movie) {
+            res.json(movie)
+          } else {
+            res.status(404).end()
+          }
+        })
         .catch(next)
     }
   )
+  // update a single movie
+  app.put('/movies/:id',
+    (req, res, next) => {
+      Movie.findByPk(req.params.id)
+        .then( movie => {
+          if (movie) {
+            movie.update(req.body)
+              .then(movie => res.json(movie))
+          } else {
+            res.status(404).end()
+          } 
+        })
+        .catch(next)
+    }
+  )
+  // delete a single movie by id
+  app.delete('/movies/:id',
+    (req, res, next) => {
+      Movie.destroy({
+        where: {
+          id: req.params.id
+          }
+        })
+        .then(
+          number => {
+            if (number) {
+              res.status(204).end()
+            } else {
+              res.status(404).end()
+            }
+          }
+        )
+        .catch(next)
+    }
+  )
+
   // start server
   app.listen(port, ()=>console.log(`Listening on port ${port}`))
   
