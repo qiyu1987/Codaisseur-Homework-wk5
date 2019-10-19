@@ -63,6 +63,14 @@ sequelize.sync({force:true})
         .catch(next)
     }
   )
+  // read a single movie by id
+  app.get('/movies/:id', 
+    (req, res, next) => {
+      Movie.findByPk(req.params.id)
+        .then(movie => res.json(movie))
+        .catch(next)
+    }
+  )
   // start server
   app.listen(port, ()=>console.log(`Listening on port ${port}`))
   
