@@ -56,13 +56,10 @@ sequelize.sync({force:true})
     // read all movies -- collections
     app.get('/movies',
     (req, res, next) => {
-      const limit = req.query.limit || 25
+      const limit = Math.min(req.query.limit || 25, 500)
       const offset = req.query.offset || 0
       Movie.findAndCountAll({ limit, offset })
         .then(result => res.send({ movies: result.rows, total: result.count }))
-        .then( 
-          movies => res.json(movies)
-          )
         .catch(next)
         }
         )
