@@ -53,6 +53,16 @@ sequelize.sync({force:true})
         .catch(next)
     } 
   )
+  // read all movies -- collections
+  app.get('/movies',
+    (req, res, next) => {
+      Movie.findAll()
+        .then( 
+          movies => res.json(movies)
+        )
+        .catch(next)
+    }
+  )
   // start server
   app.listen(port, ()=>console.log(`Listening on port ${port}`))
   
