@@ -34,39 +34,42 @@ sequelize.sync({force:true})
   )
   .then(
     () => console.log('3 movies initialized')
-  )
-  .catch(err => {
-    console.error('DataBase Initialization Failed, shutting down...')
-    process.exit(1)
-  })
-  // creat express app
-  const express = require('express')
-  const bodyParser = require('body-parser')
-  const app = express()
-  const port = process.env.PORT || 3000
-  app.use(bodyParser.json())
-  // create new movie resource
-  app.post('/movies',
+    )
+    .catch(err => {
+      console.error('DataBase Initialization Failed, shutting down...')
+      process.exit(1)
+    })
+    // creat express app
+    const express = require('express')
+    const bodyParser = require('body-parser')
+    const app = express()
+    const port = process.env.PORT || 3000
+    app.use(bodyParser.json())
+    // create new movie resource
+    app.post('/movies',
     (req, res, next) => {
       Movie.create(req.body)
-        .then(movie => res.json(movie))
-        .catch(next)
+      .then(movie => res.status(201).json(movie))
+      .catch(next)
     } 
-  )
-  // read all movies -- collections
-  app.get('/movies',
+    )
+    // read all movies -- collections
+    app.get('/movies',
     (req, res, next) => {
-      Movie.findAll()
+      const limit = req.query.limit || 25
+      const offset = req.query.offset || 0
+      Movie.findAndCountAll({ limit, offset })
+        .then(result => res.send({ movies: result.rows, total: result.count }))
         .then( 
           movies => res.json(movies)
-        )
+          )
         .catch(next)
-    }
-  )
-  // read a single movie by id
-  app.get('/movies/:id', 
-    (req, res, next) => {
-      Movie.findByPk(req.params.id)
+        }
+        )
+      // read a single movie by id
+      app.get('/movies/:id', 
+      (req, res, next) => {
+        Movie.findByPk(req.params.id)
         .then(movie => {
           if(movie) {
             res.json(movie)
@@ -75,32 +78,33 @@ sequelize.sync({force:true})
           }
         })
         .catch(next)
-    }
-  )
-  // update a single movie
-  app.put('/movies/:id',
-    (req, res, next) => {
-      Movie.findByPk(req.params.id)
-        .then( movie => {
-          if (movie) {
-            movie.update(req.body)
+      }
+      )
+      // update a single movie
+      app.put('/movies/:id',
+      (req, res, next) => {
+        Movie.findByPk(req.params.id)
+          .then( movie => {
+            if (movie) {
+              movie.update(req.body)
               .then(movie => res.json(movie))
-          } else {
-            res.status(404).end()
-          } 
-        })
-        .catch(next)
-    }
-  )
-  // delete a single movie by id
-  app.delete('/movies/:id',
-    (req, res, next) => {
-      Movie.destroy({
-        where: {
-          id: req.params.id
-          }
-        })
-        .then(
+              .catch(next)
+            } else {
+              res.status(404).end()
+            } 
+          })
+          .catch(next)
+      }
+      )
+      // delete a single movie by id
+      app.delete('/movies/:id',
+      (req, res, next) => {
+        Movie.destroy({
+          where: {
+              id: req.params.id
+            }
+          })
+          .then(
           number => {
             if (number) {
               res.status(204).end()
@@ -108,11 +112,11 @@ sequelize.sync({force:true})
               res.status(404).end()
             }
           }
+          )
+          .catch(next)
+        }
         )
-        .catch(next)
-    }
-  )
-
-  // start server
-  app.listen(port, ()=>console.log(`Listening on port ${port}`))
-  
+        
+        // start server
+        app.listen(port, ()=>console.log(`Listening on port ${port}`))
+        
